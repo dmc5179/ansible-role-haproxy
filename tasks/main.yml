@@ -6,6 +6,7 @@
     state: present
 
 - name: Install dependencies
+  become: true
   package:
     name: '{{ haproxy_rhel8_deps }}'
     state: present
@@ -25,8 +26,7 @@
   when:   
     - ansible_selinux.status is defined
     - ansible_selinux.status == "enabled"
-  notify:
-    - restart haproxy
+  notify: Ensure HAProxy is started and enabled on boot
 
 - name: Configure SELinux UDP ports for HAProxy
   become: true
@@ -38,8 +38,7 @@
   when:   
     - ansible_selinux.status is defined
     - ansible_selinux.status == "enabled"
-  notify:
-    - restart haproxy
+  notify: Ensure HAProxy is started and enabled on boot
 
 - name: Copy HAProxy configuration in place.
   become: true
@@ -48,12 +47,13 @@
     dest: /etc/haproxy/haproxy.cfg
     mode: 0644
     validate: haproxy -f %s -c -q
-  notify: restart haproxy
+  notify: Ensure HAProxy is started and enabled on boot
 
 - name: Populate service facts
   service_facts:
 
 - name: Configure firewall for haproxy
+  become: true
   firewalld:
     permanent: true
     immediate: true
@@ -70,10 +70,4 @@
   when:
     ('firewalld.service' in services) and
     (ansible_facts.services["firewalld.service"].state is match("running"))
-
-- name: Ensure HAProxy is started and enabled on boot.
-  become: true
-  service:
-    name: haproxy
-    state: started
-    enabled: true
+  notify: Ensure HAProxy is started and enabled on boot

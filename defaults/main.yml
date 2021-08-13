@@ -4,17 +4,73 @@ haproxy_chroot: /var/lib/haproxy
 haproxy_user: haproxy
 haproxy_group: haproxy
 
-# Frontend settings.
-haproxy_frontend_name: 'hafrontend'
-haproxy_frontend_bind_address: '*'
-haproxy_frontend_port: 80
-haproxy_frontend_mode: 'http'
+# OpenShift API Frontend
+api_frontend_name: 'openshift-api-server-frontend'
+api_frontend_mode: 'tcp'
+api_frontend_bind_address: '*'
+api_frontend_bind_port: 6443
+api_frontend_default_backend: 'openshift-api-server-backend'
 
-# Backend settings.
-haproxy_backend_name: 'habackend'
-haproxy_backend_mode: 'http'
-haproxy_backend_balance_method: 'roundrobin'
-haproxy_backend_httpchk: 'HEAD / HTTP/1.1\r\nHost:localhost'
+# OpenShift API Backend
+api_backend_name: 'openshift-api-server-backend'
+api_backend_balance_method: 'source'
+api_backend_mode: 'tcp'
+
+# Machine Config API Frontend
+mc_frontend_name: 'machine-config-server-frontend'
+mc_frontend_mode: 'tcp'
+mc_frontend_bind_address: '*'
+mc_frontend_bind_port: 22623
+mc_frontend_default_backend: 'machine-config-server-backend'
+
+# Machine Config API Backend
+mc_backend_name: 'machine-config-server-backend'
+mc_backend_balance_method: 'source'
+mc_backend_mode: 'tcp'
+
+# Ingress http Frontend
+ing_http_frontend_name: 'ingress-http-frontend'
+ing_http_frontend_mode: 'tcp'
+ing_http_frontend_bind_address: '*'
+ing_http_frontend_bind_port: 80
+ing_http_frontend_default_backend: 'ingress-http-backend'
+
+# Ingress http Backend
+ing_http_backend_name: 'ingress-http-backend'
+ing_http_backend_balance_method: 'source'
+ing_http_backend_mode: 'tcp'
+
+# Ingress https Frontend
+ing_https_frontend_name: 'ingress-https-frontend'
+ing_https_frontend_mode: 'tcp'
+ing_https_frontend_bind_address: '*'
+ing_https_frontend_bind_port: 443
+ing_https_frontend_default_backend: 'ingress-https-backend'
+
+# Ingress https Backend
+ing_https_backend_name: 'ingress-https-backend'
+ing_https_backend_balance_method: 'source'
+ing_https_backend_mode: 'tcp'
 
 # Extra global vars (see README for example usage).
 haproxy_global_vars: []
+
+openshift_bootstrap:
+  - name: 'bootstrap'
+    target: '192.168.1.50'  # IP address or hostname
+
+openshift_masters:
+  - name: 'master0'
+    target: '192.168.1.51'  # IP address or hostname
+  - name: 'master1'
+    target: '192.168.1.52'  # IP address or hostname
+  - name: 'master2'
+    target: '192.168.1.53'  # IP address or hostname
+
+openshift_workers:
+  - name: 'worker0'
+    target: '192.168.1.61'  # IP address or hostname
+  - name: 'worker1'
+    target: '192.168.1.62'  # IP address or hostname
+  - name: 'worker2'
+    target: '192.168.1.63'  # IP address or hostname

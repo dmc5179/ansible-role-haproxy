@@ -1,5 +1,8 @@
 ---
-- name: restart haproxy
+
+- name: Ensure HAProxy is started and enabled on boot
+  become: true
   service:
     name: haproxy
-    state: restarted
+    state: started
+    enabled: true

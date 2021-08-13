@@ -40,64 +40,64 @@ listen stats
     stats uri /
     monitor-uri /healthz
 
-frontend openshift-api-server
-    bind *:6443
-    default_backend openshift-api-server
-    mode tcp
+frontend {{ api_frontend_name }}
+    bind {{ api_frontend_bind_address }}:{{ api_frontend_bind_port }}
+    default_backend {{ api_frontend_default_backend }}
+    mode {{ api_frontend_mode }}
     option tcplog
 
-backend openshift-api-server
-    balance source
-    mode tcp
-    server {{ openshift_bootstrap[0].name | lower }} {{ openshift_bootstrap[0].ip }}:6443 check
+backend {{ api_backend_name }}
+    balance {{ api_backend_balance_method }}
+    mode {{ api_backend_mode }}
+    server {{ openshift_bootstrap[0].name | lower }} {{ openshift_bootstrap[0].target }}:6443 check
 {% for m in openshift_masters %}
-    server {{ m.name | lower }} {{ m.ip }}:6443 check
+    server {{ m.name | lower }} {{ m.target }}:6443 check
 {% endfor %}
 
-frontend machine-config-server
-    bind *:22623
-    default_backend machine-config-server
-    mode tcp
+frontend {{ mc_frontend_name }}
+    bind {{ mc_frontend_bind_address }}:{{ mc_frontend_bind_port }}
+    default_backend {{ mc_backend_name }}
+    mode {{ mc_frontend_mode }}
     option tcplog
 
-backend machine-config-server
-    balance source
-    mode tcp
-    server {{ openshift_bootstrap[0].name | lower }} {{ openshift_bootstrap[0].ip }}:22623 check
+backend {{ mc_backend_name }}
+    balance {{ mc_backend_balance_method }}
+    mode {{ mc_backend_mode }}
+    server {{ openshift_bootstrap[0].name | lower }} {{ openshift_bootstrap[0].target }}:22623 check
 {% for m in openshift_masters %}
-    server {{ m.name | lower }} {{ m.ip }}:22623 check
+    server {{ m.name | lower }} {{ m.target }}:22623 check
 {% endfor %}
 
-frontend ingress-http
-    bind *:80
-    default_backend ingress-http
-    mode tcp
+frontend {{ ing_http_frontend_name }}
+    bind {{ ing_http_frontend_bind_address }}:{{ ing_http_frontend_bind_port }}
+    default_backend {{ ing_http_frontend_default_backend }}
+    mode {{ ing_http_frontend_mode }}
     option tcplog
 
-backend ingress-http
-    balance source
-    mode tcp
+backend {{ ing_http_backend_name }}
+    balance {{ ing_http_backend_balance_method }}
+    mode {{ ing_http_backend_mode }}
 {% for w in openshift_workers %}
-    server {{ w.name | lower }} {{ w.ip }}:80 check
+    server {{ w.name | lower }} {{ w.target }}:80 check
 {% endfor %}
 {% for m in openshift_masters %}
-    server {{ m.name | lower }} {{ m.ip }}:80 check
+    server {{ m.name | lower }} {{ m.target }}:80 check
 {% endfor %}
 
-frontend ingress-https
-    bind *:443
-    default_backend ingress-https
-    mode tcp
+frontend {{ ing_https_frontend_name }}
+    bind {{ ing_https_frontend_bind_address }}:{{ ing_https_frontend_bind_port }}
+    default_backend {{ ing_https_frontend_default_backend }}
+    mode {{ ing_https_frontend_mode }}
     option tcplog
 
-backend ingress-https
-    balance source
-    mode tcp
+backend {{ ing_https_backend_name }}
+    balance {{ ing_https_backend_balance_method }}
+    mode {{ ing_https_backend_mode }}
 {% for w in openshift_workers %}
-    server {{ w.name | lower }} {{ w.ip }}:443 check
+    server {{ w.name | lower }} {{ w.target }}:443 check
 {% endfor %}
 {% for m in openshift_masters %}
-    server {{ m.name | lower }} {{ m.ip }}:443 check
+    server {{ m.name | lower }} {{ m.target }}:443 check
 {% endfor %}
 
 
